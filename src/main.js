@@ -16,7 +16,7 @@ const $ = (id) => document.getElementById(id);
 const NOMBRES = {
   1: '1 · Foto real',
   2: '2 · Foto con contorno',
-  3: '3 · Ilustración',
+  3: '3 · Dibujo animado',
   4: '4 · Pictograma',
   5: '5 · Pictograma abstracto',
   6: '6 · Palabra',
@@ -24,7 +24,7 @@ const NOMBRES = {
 const NIVELES = [1, 2, 3, 4, 5, 6];
 const NIVELES_IA = [3, 4, 5]; // los que dibuja la IA, cada uno a partir del anterior
 const NIVEL_PALABRA = 6;
-const VERSION_LAMINA = 2; // versión 1 = láminas antiguas de 5 niveles (sin ilustración)
+const VERSION_LAMINA = 2; // versión 1 = láminas antiguas de 5 niveles (sin dibujo animado)
 
 // Todo lo que sabe la app sobre la lámina en curso.
 const estado = {
@@ -150,8 +150,8 @@ async function generarDesde(nivel) {
 }
 
 // Pide a la IA un nivel a partir del nivel anterior:
-// 3 (ilustración) desde la foto con contorno (2), 4 (pictograma) desde la
-// ilustración (3) y 5 (abstracto) desde el pictograma (4).
+// 3 (dibujo animado) desde la foto con contorno (2), 4 (pictograma) desde el
+// dibujo animado (3) y 5 (abstracto) desde el pictograma (4).
 async function generarNivel(nivel) {
   estado.generando[nivel] = true;
   estado.errores[nivel] = '';
@@ -369,7 +369,7 @@ async function abrirDelBanco(id) {
   reiniciar();
   estado.palabra = lamina.palabra;
   estado.mayusculas = lamina.mayusculas;
-  // Las láminas antiguas (versión 1) no tenían ilustración: su pictograma era
+  // Las láminas antiguas (versión 1) no tenían dibujo animado: su pictograma era
   // el 3 y su abstracto el 4. Se recolocan y el nivel 3 queda pendiente.
   const imagenes = lamina.version >= 2
     ? lamina.imagenes

@@ -6,8 +6,8 @@ App web (se instala en el móvil o el iPad como una app) que, a partir de **una 
 |---|---|---|
 | 1 · Foto real | Objeto recortado sobre fondo blanco | En el propio dispositivo (`@imgly/background-removal`), sin IA en la nube |
 | 2 · Foto con contorno | La misma foto con contorno negro grueso | En el propio dispositivo, a partir del recorte del nivel 1 |
-| 3 · Ilustración | Dibujo semirrealista con volumen (2-3 tonos por color) y contorno negro: paso intermedio entre foto y pictograma | IA de Google Gemini (envía la foto con contorno del nivel 2) |
-| 4 · Pictograma | Dibujo plano, mismos colores y rasgos | IA de Google Gemini (envía la ilustración del nivel 3) |
+| 3 · Dibujo animado | Mezcla de foto y pictograma: el mismo objeto dibujado como en una serie infantil de dibujos animados, con sus detalles, líneas negras limpias y sombreado sencillo (sin cara ni ojos) | IA de Google Gemini (envía la foto con contorno del nivel 2) |
+| 4 · Pictograma | Dibujo plano, mismos colores y rasgos | IA de Google Gemini (envía el dibujo animado del nivel 3) |
 | 5 · Pictograma abstracto | Silueta en blanco y negro | IA de Google Gemini (envía el pictograma del nivel 4) |
 | 6 · Palabra | Solo la palabra | En el propio dispositivo |
 
@@ -26,11 +26,12 @@ La palabra la propone un modelo de texto barato de Gemini y **el docente siempre
 4. Abajo, pulsa **"Commit changes…"** y otra vez **"Commit changes"**.
 5. Vercel publica la nueva versión sola en 1-2 minutos. No hay que hacer nada más.
 
-En `prompts.js` hay cuatro textos: `PROMPT_NIVEL_3` (ilustración), `PROMPT_NIVEL_4` (pictograma), `PROMPT_NIVEL_5` (abstracto) y `PROMPT_PALABRA`.
+En `prompts.js` hay cuatro textos: `PROMPT_NIVEL_3` (dibujo animado), `PROMPT_NIVEL_4` (pictograma), `PROMPT_NIVEL_5` (abstracto) y `PROMPT_PALABRA`.
 
-**Ajustar lo "abstracta" que sale la ilustración (nivel 3):**
-- Si se parece demasiado a la foto → pide «un sombreado de solo 2 tonos por color» o «colores más planos».
-- Si se parece demasiado al pictograma → pide «3 o 4 tonos por color» o «conserva más detalles de la foto».
+**Ajustar el dibujo animado (nivel 3):**
+- Si se parece demasiado a la foto → pide «menos detalles» o «colores más planos».
+- Si se parece demasiado al pictograma → pide «conserva más detalles de la foto» o «añade un segundo tono de sombra».
+- Si la IA le pone cara u ojos al objeto → la frase «NO le añadas cara, ojos…» ya lo prohíbe; si aun así pasa, ponla al principio del texto.
 
 > Si algún cambio rompe la app (por ejemplo, borraste una comilla), en GitHub abre el archivo → **History** → elige la versión anterior y vuelve a copiar su texto.
 
@@ -42,7 +43,7 @@ Precios de la API de Gemini (nivel de pago, noviembre 2026, en dólares; compru�
 
 | Paso | Modelo | Coste aproximado |
 |---|---|---|
-| Ilustración (nivel 3), imagen 1K | `gemini-nano-banana-2.1` | ~0,036 $ |
+| Dibujo animado (nivel 3), imagen 1K | `gemini-nano-banana-2.1` | ~0,036 $ |
 | Pictograma (nivel 4), imagen 1K | `gemini-nano-banana-2.1` | ~0,036 $ |
 | Pictograma abstracto (nivel 5), imagen 1K | `gemini-nano-banana-2.1` | ~0,036 $ |
 | Palabra propuesta | `gemini-3.1-flash-lite` | ~0,0004 $ |
@@ -177,5 +178,5 @@ public/               ← iconos, manifest y service worker (instalación como a
 - La librería de recorte `@imgly/background-removal` tiene licencia **AGPL-3.0**: puedes usarla gratis, pero el código de la app debe estar disponible para quien la use. Lo más sencillo es dejar el repositorio de GitHub **público**. Si algún día se quiere hacer privado o comercial, IMG.LY vende una licencia comercial.
 - Tipografía Atkinson Hyperlegible (SIL Open Font License), incluida en la app (no se carga de Google Fonts, para no enviar datos a terceros).
 
-## 10. Láminas guardadas antes de añadir la ilustración
+## 10. Láminas guardadas antes de añadir el dibujo animado
 Las láminas que guardaste con la versión de 5 niveles se abren bien: su pictograma pasa a ser el nivel 4, su abstracto el 5, y el nivel 3 aparece como «Falta el nivel 3». Pulsa «Regenerar» en él para crearlo. Ten en cuenta que eso rehace también los niveles 4 y 5.

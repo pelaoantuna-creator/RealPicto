@@ -1,8 +1,8 @@
 // POST /api/pictograma
 // Recibe: { nivel: 3 | 4 | 5, palabra: "vaso", imagen: "data:image/jpeg;base64,..." }
 // Cada nivel se dibuja a partir del anterior, para que sean coherentes:
-//   - nivel 3 (ilustración):           imagen = foto con contorno (nivel 2)
-//   - nivel 4 (pictograma):            imagen = ilustración (nivel 3)
+//   - nivel 3 (dibujo animado):        imagen = foto con contorno (nivel 2)
+//   - nivel 4 (pictograma):            imagen = dibujo animado (nivel 3)
 //   - nivel 5 (pictograma abstracto):  imagen = pictograma (nivel 4)
 // Devuelve: { imagen: "data:image/png;base64,..." }
 
