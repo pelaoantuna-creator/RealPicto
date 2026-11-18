@@ -1,0 +1,160 @@
+/* Estilos de PICTO APP: letra grande, botones grandes y contraste alto. */
+
+:root {
+  --texto: #111;
+  --fondo: #fff;
+  --fondo-suave: #f2f4f8;
+  --principal: #0b3d91; /* azul oscuro: contraste 10:1 con el blanco */
+  --borde: #1a1a1a;
+  --aviso: #fff4c2;
+  --error: #a30000;
+  --foco: #ffbf00;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  background: var(--principal);
+  color: #fff;
+}
+.cabecera h1 { margin: 0; font-size: 1.6rem; letter-spacing: 0.04em; }
+.cabecera nav { display: flex; gap: 0.5rem; }
+
+.pestana {
+  font: inherit;
+  font-weight: 700;
+  min-height: 48px;
+  padding: 0.4rem 1rem;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.pestana[aria-current] { background: #fff; color: var(--principal); }
+
+main { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+
+.aviso {
+  background: var(--aviso);
+  border: 3px solid var(--borde);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.nota { color: #333; }
+
+.botonera { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+
+.boton {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.25rem;
+  min-height: 64px;
+  padding: 0.6rem 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 3px solid var(--principal);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--principal);
+  cursor: pointer;
+  text-align: center;
+}
+.boton-principal { background: var(--principal); color: #fff; }
+.boton:disabled { opacity: 0.45; cursor: not-allowed; }
+.boton-pequeno { min-height: 52px; font-size: 1.05rem; padding: 0.4rem 0.9rem; }
+.interruptor[aria-pressed='true'] { background: var(--principal); color: #fff; }
+
+/* Foco muy visible para teclado y lectores de pantalla */
+:focus-visible { outline: 4px solid var(--foco); outline-offset: 3px; }
+
+.oculto { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.estado { font-weight: 700; min-height: 1.5em; }
+.estado.error { color: var(--error); }
+progress { width: 100%; height: 1.2rem; }
+
+.etiqueta { display: block; font-weight: 700; margin-top: 1rem; }
+#palabra {
+  font: inherit;
+  font-size: 1.6rem;
+  width: 100%;
+  max-width: 480px;
+  min-height: 64px;
+  padding: 0.4rem 0.8rem;
+  border: 3px solid var(--borde);
+  border-radius: 12px;
+  display: block;
+  margin: 0.25rem 0 1rem;
+}
+
+.vista-previa {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  border: 3px solid var(--borde);
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* Las 5 tarjetas: 2 columnas en móvil, 3 en iPad vertical, 5 en pantallas anchas */
+.rejilla { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+@media (min-width: 700px) { .rejilla { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .rejilla { grid-template-columns: repeat(5, 1fr); } }
+
+.tarjeta { display: flex; flex-direction: column; gap: 0.5rem; }
+.tarjeta h3 { margin: 0; font-size: 1.05rem; }
+.tarjeta canvas, .tarjeta .espera {
+  width: 100%;
+  aspect-ratio: 1024 / 1280;
+  height: auto;
+  border-radius: 10px;
+}
+.tarjeta .espera {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  border: 3px dashed var(--borde);
+  background: var(--fondo-suave);
+  font-weight: 700;
+}
+.tarjeta .espera.error { color: var(--error); border-color: var(--error); }
+.tarjeta .acciones { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tarjeta .acciones .boton { flex: 1 1 auto; }
+
+.lista-banco { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.lista-banco li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 3px solid var(--borde);
+  border-radius: 12px;
+}
+.lista-banco img { width: 100%; max-width: 420px; height: auto; border: 1px solid #ccc; border-radius: 6px; }
+.lista-banco .datos { flex: 1 1 180px; }
+.lista-banco .palabra-banco { font-size: 1.5rem; font-weight: 700; margin: 0; }

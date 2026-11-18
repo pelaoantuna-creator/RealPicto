@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>PICTO APP</title>
+    <meta name="description" content="Láminas de Comunicación Aumentativa y Alternativa en 5 niveles a partir de una foto." />
+    <meta name="theme-color" content="#0b3d91" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icono-192.png" />
+    <link rel="apple-touch-icon" href="/icono-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PICTO APP" />
+  </head>
+  <body>
+    <header class="cabecera">
+      <h1>PICTO APP</h1>
+      <nav aria-label="Secciones">
+        <button type="button" class="pestana" id="ir-nueva" aria-current="page">Nueva lámina</button>
+        <button type="button" class="pestana" id="ir-banco">Mi banco</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ============ NUEVA LÁMINA ============ -->
+      <section id="vista-nueva" aria-labelledby="titulo-nueva">
+        <h2 id="titulo-nueva" class="solo-lector">Nueva lámina</h2>
+
+        <p class="aviso" role="note">
+          <strong>⚠️ No fotografíes caras de alumnos.</strong>
+          Las fotos no se guardan en ningún servidor: el fondo se quita en este dispositivo y solo el objeto
+          recortado se envía a Google Gemini para dibujar el pictograma, sin guardarse.
+        </p>
+
+        <div id="paso-foto" class="botonera">
+          <label class="boton boton-principal">
+            📷 Hacer foto
+            <input type="file" accept="image/*" capture="environment" id="entrada-camara" class="oculto" />
+          </label>
+          <label class="boton">
+            🖼️ Elegir foto
+            <input type="file" accept="image/*" id="entrada-galeria" class="oculto" />
+          </label>
+        </div>
+
+        <p id="estado" class="estado" role="status" aria-live="polite"></p>
+        <progress id="progreso" max="1" value="0" hidden></progress>
+
+        <div id="paso-palabra" hidden>
+          <img id="vista-previa" alt="Objeto recortado" class="vista-previa" />
+          <label for="palabra" class="etiqueta">Palabra</label>
+          <input id="palabra" type="text" autocomplete="off" autocapitalize="none" spellcheck="true" maxlength="40" />
+          <button type="button" id="boton-generar" class="boton boton-principal">✨ Generar lámina</button>
+        </div>
+
+        <div id="resultado" hidden>
+          <div class="botonera" role="group" aria-label="Tipo de letra">
+            <button type="button" class="boton interruptor" id="boton-mayusculas" aria-pressed="true">MAYÚSCULAS</button>
+            <button type="button" class="boton interruptor" id="boton-minusculas" aria-pressed="false">minúsculas</button>
+          </div>
+          <div id="tarjetas" class="rejilla"></div>
+          <div class="botonera">
+            <button type="button" id="boton-lamina" class="boton boton-principal">⬇️ Descargar lámina (PNG)</button>
+            <button type="button" id="boton-guardar" class="boton">💾 Guardar en Mi banco</button>
+            <button type="button" id="boton-otra" class="boton">➕ Hacer otra lámina</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MI BANCO ============ -->
+      <section id="vista-banco" aria-labelledby="titulo-banco" hidden>
+        <h2 id="titulo-banco">Mi banco</h2>
+        <p class="nota">
+          Las láminas se guardan solo en este dispositivo. En iPad, añade la app a la pantalla de inicio
+          para que Safari no las borre si pasas semanas sin abrirla.
+        </p>
+        <ul id="lista-banco" class="lista-banco"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

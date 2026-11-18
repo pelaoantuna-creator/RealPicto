@@ -1,0 +1,7 @@
+node_modules
+dist
+# Claves y variables locales: NUNCA se suben a GitHub
+.env
+.env.*
+!.env.example
+.vercel
