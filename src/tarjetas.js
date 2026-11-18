@@ -54,14 +54,15 @@ export function dibujarTarjeta(imagen, texto) {
   return c;
 }
 
-// Junta las 5 tarjetas en una fila: la lámina.
+// Junta todas las tarjetas (6) en una fila: la lámina.
 export function componerLamina(tarjetas) {
   const escala = 0.5;
   const w = ANCHO * escala;
   const h = ALTO * escala;
   const hueco = 32;
   const margen = 48;
-  const c = lienzo(margen * 2 + w * 5 + hueco * 4, margen * 2 + h);
+  const n = tarjetas.length;
+  const c = lienzo(margen * 2 + w * n + hueco * (n - 1), margen * 2 + h);
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, c.width, c.height);

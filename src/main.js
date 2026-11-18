@@ -16,18 +16,23 @@ const $ = (id) => document.getElementById(id);
 const NOMBRES = {
   1: '1 · Foto real',
   2: '2 · Foto con contorno',
-  3: '3 · Pictograma',
-  4: '4 · Pictograma abstracto',
-  5: '5 · Palabra',
+  3: '3 · Ilustración',
+  4: '4 · Pictograma',
+  5: '5 · Pictograma abstracto',
+  6: '6 · Palabra',
 };
+const NIVELES = [1, 2, 3, 4, 5, 6];
+const NIVELES_IA = [3, 4, 5]; // los que dibuja la IA, cada uno a partir del anterior
+const NIVEL_PALABRA = 6;
+const VERSION_LAMINA = 2; // versión 1 = láminas antiguas de 5 niveles (sin ilustración)
 
 // Todo lo que sabe la app sobre la lámina en curso.
 const estado = {
   palabra: '',
   mayusculas: leerPreferencia(),
-  niveles: { 1: null, 2: null, 3: null, 4: null }, // lienzos de 1024 x 1024
-  errores: { 3: '', 4: '' },
-  generando: { 3: false, 4: false },
+  niveles: { 1: null, 2: null, 3: null, 4: null, 5: null }, // lienzos de 1024 x 1024
+  errores: { 3: '', 4: '', 5: '' },
+  generando: { 3: false, 4: false, 5: false },
   idGuardada: null, // si ya está en Mi banco, su número
 };
 
@@ -65,8 +70,8 @@ $('ir-banco').addEventListener('click', () => mostrarVista('banco'));
 // ---------- Empezar de cero ----------
 function reiniciar() {
   estado.palabra = '';
-  estado.niveles = { 1: null, 2: null, 3: null, 4: null };
-  estado.errores = { 3: '', 4: '' };
+  estado.niveles = { 1: null, 2: null, 3: null, 4: null, 5: null };
+  estado.errores = { 3: '', 4: '', 5: '' };
   estado.idGuardada = null;
   $('palabra').value = '';
   $('paso-foto').hidden = false;
@@ -124,14 +129,29 @@ $('boton-generar').addEventListener('click', async () => {
   $('paso-foto').hidden = true;
   $('paso-palabra').hidden = true;
   $('resultado').hidden = false;
-  avisar('Dibujando los pictogramas con IA… (unos segundos por nivel)');
+  avisar('Dibujando con IA… (unos segundos por nivel)');
   pintarTarjetas();
-  await generarNivel(3);
-  if (estado.niveles[3]) await generarNivel(4);
-  avisar(estado.niveles[3] && estado.niveles[4] ? 'Lámina lista.' : 'Algún nivel ha fallado: pulsa «Regenerar».', !estado.niveles[4]);
+  await generarDesde(3);
+  const completa = laminaCompleta();
+  avisar(completa ? 'Lámina lista.' : 'Algún nivel ha fallado: pulsa «Regenerar».', !completa);
 });
 
-// Pide a la IA el nivel 3 (a partir de la foto) o el 4 (a partir del 3).
+function laminaCompleta() {
+  return NIVELES_IA.every((n) => estado.niveles[n]);
+}
+
+// Genera el nivel indicado y todos los siguientes (3 → 4 → 5).
+// Si uno falla, se para: los siguientes dependen de él.
+async function generarDesde(nivel) {
+  for (const n of NIVELES_IA.filter((x) => x >= nivel)) {
+    await generarNivel(n);
+    if (!estado.niveles[n]) break;
+  }
+}
+
+// Pide a la IA un nivel a partir del nivel anterior:
+// 3 (ilustración) desde la foto con contorno (2), 4 (pictograma) desde la
+// ilustración (3) y 5 (abstracto) desde el pictograma (4).
 async function generarNivel(nivel) {
   estado.generando[nivel] = true;
   estado.errores[nivel] = '';
@@ -139,7 +159,7 @@ async function generarNivel(nivel) {
   estado.idGuardada = null; // la lámina ha cambiado: habrá que volver a guardarla
   pintarTarjetas();
   try {
-    const referencia = nivel === 3 ? estado.niveles[1] : estado.niveles[3];
+    const referencia = estado.niveles[nivel - 1];
     const { imagen } = await generarPictograma(nivel, estado.palabra, aDataUrl(referencia, 'image/jpeg', 0.9));
     estado.niveles[nivel] = await encuadrarIA(imagen);
   } catch (error) {
@@ -150,17 +170,16 @@ async function generarNivel(nivel) {
 }
 
 async function regenerar(nivel) {
-  avisar(`Regenerando el nivel ${nivel}…`);
-  await generarNivel(nivel);
-  // Si cambia el 3, el 4 se rehace a partir del nuevo 3 para que sigan siendo coherentes.
-  if (nivel === 3 && estado.niveles[3]) await generarNivel(4);
+  avisar(`Regenerando desde el nivel ${nivel}…`);
+  // Se rehace este nivel y los siguientes, que salen de él, para que sigan siendo coherentes.
+  await generarDesde(nivel);
   avisar(estado.errores[nivel] ? 'Ha fallado. Puedes volver a intentarlo.' : 'Hecho.', Boolean(estado.errores[nivel]));
 }
 
 // ---------- Dibujar las 5 tarjetas en pantalla ----------
 function tarjetaCanvas(nivel) {
   const texto = textoVisible(estado.palabra, estado.mayusculas);
-  return dibujarTarjeta(nivel === 5 ? null : estado.niveles[nivel], texto);
+  return dibujarTarjeta(nivel === NIVEL_PALABRA ? null : estado.niveles[nivel], texto);
 }
 
 function nombreArchivo(sufijo) {
@@ -183,16 +202,16 @@ async function descargar(canvas, nombre) {
 function pintarTarjetas() {
   const contenedor = $('tarjetas');
   contenedor.replaceChildren();
-  const ocupado = estado.generando[3] || estado.generando[4];
+  const ocupado = NIVELES_IA.some((n) => estado.generando[n]);
 
-  for (const nivel of [1, 2, 3, 4, 5]) {
+  for (const nivel of NIVELES) {
     const tarjeta = document.createElement('article');
     tarjeta.className = 'tarjeta';
     const titulo = document.createElement('h3');
     titulo.textContent = NOMBRES[nivel];
     tarjeta.append(titulo);
 
-    const listo = nivel === 5 || estado.niveles[nivel];
+    const listo = nivel === NIVEL_PALABRA || estado.niveles[nivel];
     if (listo) {
       const canvas = tarjetaCanvas(nivel);
       canvas.setAttribute('role', 'img');
@@ -205,7 +224,8 @@ function pintarTarjetas() {
         espera.classList.add('error');
         espera.textContent = estado.errores[nivel];
       } else {
-        espera.textContent = estado.generando[nivel] ? 'Dibujando…' : 'Esperando al nivel 3…';
+        espera.textContent = estado.generando[nivel] ? 'Dibujando…' : `Falta el nivel ${nivel}. Pulsa «Regenerar».`;
+        if (!estado.generando[nivel] && ocupado) espera.textContent = `Esperando al nivel ${nivel - 1}…`;
       }
       tarjeta.append(espera);
     }
@@ -221,14 +241,14 @@ function pintarTarjetas() {
       botonDescargar.addEventListener('click', () => descargar(tarjetaCanvas(nivel), nombreArchivo(`nivel-${nivel}`)));
       acciones.append(botonDescargar);
     }
-    if (nivel === 3 || nivel === 4) {
+    if (NIVELES_IA.includes(nivel)) {
       const botonRegenerar = document.createElement('button');
       botonRegenerar.type = 'button';
       botonRegenerar.className = 'boton boton-pequeno';
       botonRegenerar.textContent = '🔄 Regenerar';
       botonRegenerar.setAttribute('aria-label', `Regenerar ${NOMBRES[nivel]}`);
-      botonRegenerar.title = nivel === 3 ? 'Rehace el nivel 3 y después el 4, para que coincidan' : 'Rehace solo el nivel 4';
-      botonRegenerar.disabled = ocupado || (nivel === 4 && !estado.niveles[3]);
+      botonRegenerar.title = nivel < 5 ? `Rehace el nivel ${nivel} y los siguientes, para que coincidan` : 'Rehace solo el nivel 5';
+      botonRegenerar.disabled = ocupado || !estado.niveles[nivel - 1];
       botonRegenerar.addEventListener('click', () => regenerar(nivel));
       acciones.append(botonRegenerar);
     }
@@ -236,7 +256,7 @@ function pintarTarjetas() {
     contenedor.append(tarjeta);
   }
 
-  const completa = estado.niveles[3] && estado.niveles[4];
+  const completa = laminaCompleta();
   $('boton-lamina').disabled = !completa;
   $('boton-guardar').disabled = !completa || ocupado;
   $('boton-guardar').textContent = estado.idGuardada ? '✅ Guardada en Mi banco' : '💾 Guardar en Mi banco';
@@ -245,7 +265,7 @@ function pintarTarjetas() {
 }
 
 function laminaCanvas() {
-  return componerLamina([1, 2, 3, 4, 5].map(tarjetaCanvas));
+  return componerLamina(NIVELES.map(tarjetaCanvas));
 }
 
 // ---------- MAYÚSCULAS / minúsculas ----------
@@ -264,13 +284,14 @@ $('boton-lamina').addEventListener('click', () => descargar(laminaCanvas(), nomb
 $('boton-guardar').addEventListener('click', async () => {
   try {
     const imagenes = {};
-    for (const n of [1, 2, 3, 4]) imagenes[n] = await aBlob(estado.niveles[n]);
+    for (const n of [1, 2, 3, 4, 5]) imagenes[n] = await aBlob(estado.niveles[n]);
     const lamina = laminaCanvas();
     const mini = lienzo(Math.round(lamina.width / 3), Math.round(lamina.height / 3));
     mini.getContext('2d').drawImage(lamina, 0, 0, mini.width, mini.height);
     const datos = {
       palabra: estado.palabra,
       mayusculas: estado.mayusculas,
+      version: VERSION_LAMINA,
       fecha: Date.now(),
       imagenes,
       miniatura: await aBlob(mini, 'image/jpeg', 0.85),
@@ -322,6 +343,7 @@ async function pintarBanco() {
     abrir.type = 'button';
     abrir.className = 'boton boton-pequeno boton-principal';
     abrir.textContent = 'Abrir';
+    abrir.setAttribute('aria-label', `Abrir la lámina ${lamina.palabra}`);
     abrir.addEventListener('click', () => abrirDelBanco(lamina.id));
     const borrar = document.createElement('button');
     borrar.type = 'button';
@@ -347,7 +369,12 @@ async function abrirDelBanco(id) {
   reiniciar();
   estado.palabra = lamina.palabra;
   estado.mayusculas = lamina.mayusculas;
-  for (const n of [1, 2, 3, 4]) estado.niveles[n] = await aLienzo(lamina.imagenes[n]);
+  // Las láminas antiguas (versión 1) no tenían ilustración: su pictograma era
+  // el 3 y su abstracto el 4. Se recolocan y el nivel 3 queda pendiente.
+  const imagenes = lamina.version >= 2
+    ? lamina.imagenes
+    : { 1: lamina.imagenes[1], 2: lamina.imagenes[2], 4: lamina.imagenes[3], 5: lamina.imagenes[4] };
+  for (const n of [1, 2, 3, 4, 5]) estado.niveles[n] = imagenes[n] ? await aLienzo(imagenes[n]) : null;
   estado.idGuardada = lamina.id;
   $('palabra').value = lamina.palabra;
   $('paso-foto').hidden = true;

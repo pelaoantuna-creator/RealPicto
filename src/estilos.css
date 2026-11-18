@@ -118,10 +118,10 @@ progress { width: 100%; height: 1.2rem; }
   background: #fff;
 }
 
-/* Las 5 tarjetas: 2 columnas en móvil, 3 en iPad vertical, 5 en pantallas anchas */
+/* Las 6 tarjetas: 2 columnas en móvil, 3 en iPad, 6 en pantallas muy anchas */
 .rejilla { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 @media (min-width: 700px) { .rejilla { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { .rejilla { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 1300px) { .rejilla { grid-template-columns: repeat(6, 1fr); } }
 
 .tarjeta { display: flex; flex-direction: column; gap: 0.5rem; }
 .tarjeta h3 { margin: 0; font-size: 1.05rem; }
